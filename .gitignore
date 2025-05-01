@@ -36,5 +36,9 @@ build/
 # Ignore build artifacts
 docker/backend.jar
 
+/credentials/
+
 # GCP credentials
 /src/main/resources/dotori-service-resume-key.jsongoogle-cloud-sdk/
+
+/src/main/resources/application.properties
