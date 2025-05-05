@@ -12,7 +12,7 @@ import java.util.List;
 public class UserService {
     private final UserRepository userRepository;
 
-    public User getUserById(Long id) {
+    public User getUserById(String id) {
         return userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }

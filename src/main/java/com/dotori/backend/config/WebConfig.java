@@ -15,9 +15,10 @@ public class WebConfig {
             @Override
             public void addCorsMappings(@NonNull CorsRegistry registry) {
                 registry.addMapping("/**")
-                        .allowedOrigins("*") // 👈 for now all origins allowed for the dev purpose. This should be a deployed frontend domain
+                        .allowedOrigins("http://localhost:3000") // 👈 for now all origins allowed for the dev purpose. This should be a deployed frontend domain
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }

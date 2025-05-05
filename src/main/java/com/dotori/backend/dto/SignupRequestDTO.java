@@ -26,8 +26,4 @@ public class SignupRequestDTO {
     @NotBlank
     @Schema(description = "User's last name", example = "Doe")
     private String lastName;
-
-    @NotBlank
-    @Schema(description = "User's role", example = "USER")
-    private String role;
 } 

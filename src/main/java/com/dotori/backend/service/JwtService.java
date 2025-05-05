@@ -59,4 +59,14 @@ public class JwtService {
             }
         }
     }
+
+    public String extractClaim(String token, String key){
+        var parser = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secretKey.getBytes())).build();
+
+        return parser.parseClaimsJws(token)
+                 .getBody()
+                 .get(key)
+                 .toString();
+    }
 } 
