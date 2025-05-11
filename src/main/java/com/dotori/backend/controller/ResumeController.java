@@ -16,9 +16,9 @@ public class ResumeController {
     private final GCSResumeService gcsUploadService;
 
     @PostMapping("/resume")
-    public ResponseEntity<String> uploadResume(@RequestParam("file") MultipartFile file) {
+    public ResponseEntity<String> uploadResume(@RequestParam("file") MultipartFile file, @RequestParam("userId") String userId) {
         try {
-            String publicUrl = gcsUploadService.uploadFile(file);
+            String publicUrl = gcsUploadService.uploadFile(file, userId);
             return ResponseEntity.ok(publicUrl);
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

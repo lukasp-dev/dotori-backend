@@ -2,6 +2,7 @@ package com.dotori.backend.controller;
 
 import com.dotori.backend.dto.SignupRequestDTO;
 import com.dotori.backend.dto.SocialLoginDTO;
+import com.dotori.backend.dto.LoginDTO;
 import com.dotori.backend.model.User;
 import com.dotori.backend.service.AuthService;
 import com.dotori.backend.repository.RefreshTokenRepository;
@@ -30,12 +31,12 @@ public class AuthController {
     private final JwtService jwtService;
 
     @PostMapping("/signup")
-    public ResponseEntity<String> signup(
+    public ResponseEntity<Map<String, Object>> signup(
             @Valid @RequestBody SignupRequestDTO userDetails,
             HttpServletResponse response
     ) {
         Map<String, Object> tokens = authService.signup(userDetails);
-
+    
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", (String) tokens.get("refreshToken"))
                 .httpOnly(true)
                 .secure(true)
@@ -43,22 +44,25 @@ public class AuthController {
                 .maxAge(Duration.ofDays(7))
                 .sameSite("Strict")
                 .build();
-
+    
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
-        return ResponseEntity.ok(tokens.get("accessToken").toString());
+    
+        Map<String, Object> responseBody = Map.of(
+            "accessToken", tokens.get("accessToken"),
+            "user", tokens.get("user")
+        );
+    
+        return ResponseEntity.ok(responseBody);
     }
 
 
     @PostMapping("/login")
-    public ResponseEntity<String> login(
-            @RequestParam String email,
-            @RequestParam String password,
-            HttpServletResponse response 
+    public ResponseEntity<Map<String, Object>> login(
+        @RequestBody LoginDTO userDetails,
+        HttpServletResponse response
     ) {
-        Map<String, Object> tokens = authService.login(email, password);
-
-        // refreshToken은 HttpOnly 쿠키로 설정
+        Map<String, Object> tokens = authService.login(userDetails.getEmail(), userDetails.getPassword());
+    
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", (String) tokens.get("refreshToken"))
                 .httpOnly(true)
                 .secure(true)
@@ -66,11 +70,16 @@ public class AuthController {
                 .maxAge(Duration.ofDays(7))
                 .sameSite("Strict")
                 .build();
-
+    
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
-        // accessToken은 JSON으로 응답
-        return ResponseEntity.ok((String) tokens.get("accessToken")); 
+    
+        // accessToke & user info
+        Map<String, Object> responseBody = Map.of(
+            "accessToken", tokens.get("accessToken"),
+            "user", tokens.get("user") 
+        );
+    
+        return ResponseEntity.ok(responseBody);
     }
 
     @PostMapping("/refresh")
@@ -103,24 +112,29 @@ public class AuthController {
     }
 
     @PostMapping("/social-login")
-    public ResponseEntity<String> socialLogin(@RequestBody SocialLoginDTO dto, HttpServletResponse response) {
+    public ResponseEntity<Map<String, Object>> socialLogin(@RequestBody SocialLoginDTO dto, HttpServletResponse response) {
         User user = authService.findOrCreateUser(dto.getEmail(), dto.getName());
-
+    
         String accessToken = jwtService.create(
-            Map.of("email", user.getEmail(), "role", user.getRole()),
-            LocalDateTime.now().plusMinutes(30)  // access token 만료 시간
+            Map.of(
+                "userId", user.getId(),
+                "email", user.getEmail(),
+                "role", user.getRole()
+            ),
+            LocalDateTime.now().plusMinutes(30)
         );
+    
         String refreshToken = jwtService.create(
-            Map.of("email", user.getEmail()),
-            LocalDateTime.now().plusDays(7)  // refresh token 만료 시간
+            Map.of("userId", user.getId()),
+            LocalDateTime.now().plusDays(7)
         );
-        
+    
         refreshTokenRepository.save(RefreshToken.builder()
             .token(refreshToken)
             .expiresAt(LocalDateTime.now().plusDays(7))
             .user(user)
             .build());
-
+    
         ResponseCookie refreshCookie = ResponseCookie.from("refreshToken", refreshToken)
                 .httpOnly(true)
                 .secure(true)
@@ -129,7 +143,17 @@ public class AuthController {
                 .sameSite("Strict")
                 .build();
         response.addHeader(HttpHeaders.SET_COOKIE, refreshCookie.toString());
-
-        return ResponseEntity.ok(accessToken);
-    }
+    
+        Map<String, Object> responseBody = Map.of(
+            "accessToken", accessToken,
+            "user", Map.of(
+                "id", user.getId(),
+                "name", user.getName(),
+                "email", user.getEmail(),
+                "role", user.getRole()
+            )
+        );
+    
+        return ResponseEntity.ok(responseBody);
+    }    
 }
