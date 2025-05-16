@@ -11,6 +11,7 @@ import java.util.Map;
 @Setter
 @ToString
 public class UploadInfoRequestDTO {
+    private String userId;
     private int high_school_completion;
     private Map<String, Integer> general_college_requirement;
     private int alumni;
@@ -23,4 +24,6 @@ public class UploadInfoRequestDTO {
     private int act;
     private double gpa;
     private int volunteering_hours;
+    private String english_test_type;
+    private int english_test_score;
 }
