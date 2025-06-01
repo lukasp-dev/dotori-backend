@@ -9,6 +9,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
 
 @RequiredArgsConstructor
 @Service
@@ -19,7 +20,25 @@ public class GCSResumeService {
     @Value("${resume.bucket.name}")
     private String BUCKET;
 
+    public String getResumeUrl(String userId) {
+        String userResumePrefix = String.format("resumes/%s/", userId);
+        return StreamSupport.stream(storage.list(BUCKET, Storage.BlobListOption.prefix(userResumePrefix))
+                .getValues().spliterator(), false)
+                .findFirst()
+                .map(blob -> String.format("https://storage.googleapis.com/%s/%s", BUCKET, blob.getName()))
+                .orElse(null);
+    }
+
     public String uploadFile(MultipartFile file, String userId) throws IOException {
+        // delete existing resume
+        String userResumePrefix = String.format("resumes/%s/", userId);
+        storage.list(BUCKET, Storage.BlobListOption.prefix(userResumePrefix))
+                .getValues()
+                .forEach(blob -> {
+                    System.out.println("🗑️ Deleting existing resume: " + blob.getName());
+                    blob.delete();
+                });
+
         String fileName = String.format("resumes/%s/%s_%s", userId, UUID.randomUUID(), file.getOriginalFilename());
         System.out.println("📤 Uploading to GCS...");
         System.out.println("📎 File: " + fileName);
