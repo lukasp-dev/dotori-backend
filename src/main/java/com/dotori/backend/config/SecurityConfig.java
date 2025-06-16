@@ -41,7 +41,7 @@ public class SecurityConfig {
             .requestMatchers("/auth/**", "/api/auth/**").permitAll()
             .requestMatchers("/api/schools").permitAll()
             .requestMatchers( "/v3/api-docs/**", "/swagger-ui/**","/swagger-ui.html").permitAll()
-            .requestMatchers("/api/upload/resume").permitAll()
+            .requestMatchers("/api/upload/resume/**").permitAll()
             .requestMatchers("/api/users/**").authenticated()
             .requestMatchers("/api/uploadPersonalInfo").authenticated()
             .requestMatchers("/api/upload/**").authenticated()
