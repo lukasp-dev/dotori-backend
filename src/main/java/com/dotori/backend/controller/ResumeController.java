@@ -27,4 +27,13 @@ public class ResumeController {
                     .body("Upload failed: " + e.getMessage());
         }
     }
+
+    @GetMapping("/{userId}")
+    public ResponseEntity<String> getResumeUrl(@PathVariable String userId) {
+        String resumeUrl = gcsUploadService.getResumeUrl(userId);
+        if (resumeUrl == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(resumeUrl);
+    }
 }
