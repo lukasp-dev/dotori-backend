@@ -1,30 +1,28 @@
 package com.dotori.backend.controller;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.http.ResponseEntity;
+import com.dotori.backend.dto.SchoolDTO;
+import com.dotori.backend.model.School;
+import com.dotori.backend.repository.SchoolRepository;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.List;
-import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api")
+@RequestMapping("/api/schools")
+@CrossOrigin(origins = "http://localhost:3000", allowCredentials = "true")
 public class SchoolController {
-    @GetMapping("/schools")
-    public ResponseEntity<List<Map<String, Object>>> getAllSchools() {
-        try {
-            InputStream inputStream = new FileInputStream("credentials/demo-schools.json");
+    private final SchoolRepository schoolRepository;
 
-            ObjectMapper mapper = new ObjectMapper();
-            List<Map<String, Object>> schools = mapper.readValue(inputStream, new TypeReference<>() {});
+    public SchoolController(SchoolRepository schoolRepository) {
+        this.schoolRepository = schoolRepository;
+    }
 
-            return ResponseEntity.ok(schools);
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().build();
-        }
+    @GetMapping
+    public List<SchoolDTO> getAllSchools() {
+        List<School> schools = schoolRepository.findAll();
+        return schools.stream()
+                .map(s -> new SchoolDTO(s.getSchoolName(), s.getId()))
+                .collect(Collectors.toList());
     }
 }
