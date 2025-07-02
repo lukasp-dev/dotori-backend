@@ -16,4 +16,10 @@ public class School {
 
     @Column(nullable = false)
     private String schoolName;
+
+    @Column(nullable = false)
+    private int ranking;
+
+    @Column(name = "url_parameter", nullable = false)
+    private String urlParameter;
 }

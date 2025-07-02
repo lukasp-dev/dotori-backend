@@ -7,6 +7,8 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class SchoolDTO {
-    private String label;
-    private Long value;
+    private Long id;
+    private String schoolName;
+    private int ranking;
+    private String urlParameter;
 }

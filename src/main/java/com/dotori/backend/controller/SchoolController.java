@@ -22,7 +22,7 @@ public class SchoolController {
     public List<SchoolDTO> getAllSchools() {
         List<School> schools = schoolRepository.findAll();
         return schools.stream()
-                .map(s -> new SchoolDTO(s.getSchoolName(), s.getId()))
+                .map(s -> new SchoolDTO(s.getId(), s.getSchoolName(), s.getRanking(), s.getUrlParameter()))
                 .collect(Collectors.toList());
     }
 }
