@@ -44,3 +44,7 @@ docker/backend.jar
 
 # JVM crash logs
 hs_err_pid*.log
+
+# Log files
+replay_pid*.log
+*.log
