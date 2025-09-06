@@ -1,4 +1,4 @@
-# 🌰 Dotori
+# 🌰 Dotori - Backend
 
 > **Equal Opportunities for Students at a Fair Price.**
 > Smart help. Honest prices. Real opportunity.
